@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      overflow: hidden;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: transparent;
+      color: var(--homey-text-color, #fff);
+      padding: var(--homey-su-3, 12px) var(--homey-su-4, 16px);
+      font-size: var(--homey-font-size-small, 14px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      gap: var(--homey-su-2, 8px);
+    }
+
+    .title {
+      font-size: var(--homey-font-size-default, 17px);
+      font-weight: var(--homey-font-weight-bold, 700);
+    }
+
+    label {
+      display: block;
+      font-size: var(--homey-font-size-small, 14px);
+      color: var(--homey-text-color-light, rgba(255,255,255,0.6));
+      margin-bottom: 2px;
+    }
+
+    select, textarea {
+      width: 100%;
+      padding: var(--homey-su-2, 8px);
+      border-radius: var(--homey-border-radius-default, 8px);
+      border: var(--homey-line, 1px solid rgba(255,255,255,0.12));
+      background: var(--homey-color-mono-100, rgba(255,255,255,0.06));
+      color: var(--homey-text-color, #fff);
+      font-family: inherit;
+      font-size: var(--homey-font-size-small, 14px);
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
+    }
+
+    select:focus, textarea:focus {
+      border-color: var(--homey-color-blue-500, #4A90D9);
+    }
+
+    .input-group {
+      display: flex;
+      border-radius: var(--homey-border-radius-default, 8px);
+      overflow: hidden;
+      border: var(--homey-line, 1px solid rgba(255,255,255,0.12));
+      transition: border-color 0.15s;
+    }
+
+    .input-group:focus-within {
+      border-color: var(--homey-color-blue-500, #4A90D9);
+    }
+
+    .input-group textarea {
+      resize: none;
+      flex: 1;
+      height: 80px;
+      border: none;
+      border-radius: 0;
+    }
+
+    .send-btn {
+      width: 44px;
+      flex-shrink: 0;
+      padding: 0;
+      border: none;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      background: var(--homey-color-mono-100, rgba(255,255,255,0.06));
+      color: var(--homey-color-blue-500, #4A90D9);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .send-btn:hover {
+      background: rgba(74, 144, 217, 0.1);
+    }
+
+    .send-btn:active {
+      background: rgba(74, 144, 217, 0.2);
+    }
+
+    .send-btn:disabled {
+      color: var(--homey-text-color-light, rgba(255,255,255,0.3));
+      cursor: default;
+    }
+
+    .send-btn.success {
+      color: var(--homey-color-green-500, #27ae60);
+      background: rgba(39, 174, 96, 0.1);
+    }
+
+    .send-btn.error {
+      color: var(--homey-color-red-500, #c0392b);
+      background: rgba(192, 57, 43, 0.1);
+    }
+
+    .row {
+      display: flex;
+      gap: var(--homey-su-2, 8px);
+      align-items: flex-start;
+    }
+
+    .row .field {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .message-row {
+      display: flex;
+      gap: var(--homey-su-2, 8px);
+      align-items: center;
+    }
+
+    .message-field {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .volume-wrapper {
+      position: relative;
+      flex-shrink: 0;
+      display: flex;
+    }
+
+    .volume-btn {
+      background: var(--homey-color-mono-100, rgba(255,255,255,0.06));
+      border: var(--homey-line, 1px solid rgba(255,255,255,0.12));
+      border-radius: var(--homey-border-radius-default, 8px);
+      color: var(--homey-text-color, #fff);
+      cursor: pointer;
+      padding: var(--homey-su-2, 8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 11px;
+      transition: border-color 0.15s;
+    }
+
+    .volume-btn:hover {
+      border-color: var(--homey-color-blue-500, #4A90D9);
+    }
+
+    .volume-btn svg {
+      width: var(--homey-icon-size-regular, 16px);
+      height: var(--homey-icon-size-regular, 16px);
+      fill: currentColor;
+    }
+
+    .volume-popup {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + var(--homey-su-1, 4px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--homey-background-color, rgba(30,30,38,0.95));
+      border: var(--homey-line, 1px solid rgba(255,255,255,0.12));
+      border-radius: var(--homey-border-radius-default, 8px);
+      padding: var(--homey-su-2, 8px);
+      flex-direction: column;
+      align-items: center;
+      gap: var(--homey-su-1, 4px);
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .volume-popup.open {
+      display: flex;
+    }
+
+    .volume-popup input[type="range"] {
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 20px;
+      height: 60px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+    }
+
+    .volume-popup input[type="range"]::-webkit-slider-runnable-track {
+      width: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to top,
+        var(--homey-color-blue-500, #4A90D9) var(--vol-pct, 50%),
+        rgba(255,255,255,0.12) var(--vol-pct, 50%)
+      );
+    }
+
+    .volume-popup input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--homey-color-blue-500, #4A90D9);
+      border: 2px solid var(--homey-text-color-white, #fff);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      margin-left: -5px;
+    }
+
+    .volume-popup input[type="range"]::-moz-range-track {
+      width: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .volume-popup input[type="range"]::-moz-range-progress {
+      background: var(--homey-color-blue-500, #4A90D9);
+      border-radius: 2px;
+    }
+
+    .volume-popup input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--homey-color-blue-500, #4A90D9);
+      border: 2px solid var(--homey-text-color-white, #fff);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .volume-popup .volume-value {
+      font-size: 11px;
+      color: var(--homey-text-color-light, rgba(255,255,255,0.6));
+    }
+
+
+    .empty-state {
+      text-align: center;
+      padding: 40px var(--homey-su-4, 16px);
+      color: var(--homey-text-color-light, rgba(255,255,255,0.5));
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="title">TTS on Demand</div>
+
+    <div class="row">
+      <div class="field">
+        <label>Device</label>
+        <select id="device"></select>
+      </div>
+      <div class="field">
+        <label>Language</label>
+        <select id="language"></select>
+      </div>
+    </div>
+
+    <div class="message-row">
+      <div class="message-field">
+        <div class="input-group">
+          <textarea id="text" placeholder="Type your message..." maxlength="200"></textarea>
+          <button class="send-btn" id="sendBtn" type="button" onclick="send()" disabled>
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="volume-wrapper">
+        <button class="volume-btn" id="volumeBtn" type="button" onclick="toggleVolume()">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <span id="volumeLabel">50</span>
+        </button>
+        <div class="volume-popup" id="volumePopup">
+          <input type="range" id="volume" min="0" max="100" value="50">
+          <span class="volume-value" id="volumePopupLabel">50</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="empty" class="empty-state" style="display: none;">
+    No Google Cast devices found
+  </div>
+
+  <script>
+    function onHomeyReady(Homey) {
+      loadDevices(Homey);
+      loadLanguages(Homey);
+
+      document.getElementById('text').addEventListener('input', function () {
+        document.getElementById('sendBtn').disabled = this.value.trim().length === 0;
+      });
+
+      var volumeSlider = document.getElementById('volume');
+      function updateVolume() {
+        document.getElementById('volumeLabel').textContent = volumeSlider.value;
+        document.getElementById('volumePopupLabel').textContent = volumeSlider.value;
+        volumeSlider.style.setProperty('--vol-pct', volumeSlider.value + '%');
+      }
+      volumeSlider.addEventListener('input', updateVolume);
+      updateVolume();
+
+      document.addEventListener('click', function (e) {
+        var wrapper = document.getElementById('volumeBtn').parentElement;
+        if (!wrapper.contains(e.target)) {
+          document.getElementById('volumePopup').classList.remove('open');
+        }
+      });
+
+      var height = document.getElementById('app').scrollHeight + 24;
+      Homey.ready({ height: height });
+    }
+
+    function loadDevices(Homey) {
+      Homey.api('GET', '/devices')
+        .then(function (devices) {
+          var select = document.getElementById('device');
+          select.innerHTML = '';
+
+          if (!devices || devices.length === 0) {
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('empty').style.display = 'block';
+            return;
+          }
+
+          devices.forEach(function (device) {
+            var option = document.createElement('option');
+            option.value = device.id;
+            option.textContent = device.name;
+            select.appendChild(option);
+          });
+        })
+        .catch(function (err) {
+          console.error('Failed to load devices:', err);
+          document.getElementById('app').style.display = 'none';
+          document.getElementById('empty').style.display = 'block';
+        });
+    }
+
+    function loadLanguages(Homey) {
+      Homey.api('GET', '/languages')
+        .then(function (languages) {
+          var select = document.getElementById('language');
+          select.innerHTML = '';
+
+          languages.forEach(function (lang) {
+            var option = document.createElement('option');
+            option.value = lang.id;
+            option.textContent = lang.label;
+            select.appendChild(option);
+          });
+        })
+        .catch(function (err) {
+          console.error('Failed to load languages:', err);
+        });
+    }
+
+    function toggleVolume() {
+      document.getElementById('volumePopup').classList.toggle('open');
+    }
+
+    var sendIcon = '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+    var errorIcon = '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
+
+    function send() {
+      var btn = document.getElementById('sendBtn');
+      var text = document.getElementById('text').value.trim();
+
+      if (!text) {
+        btn.innerHTML = errorIcon;
+        btn.classList.add('error');
+        setTimeout(function () {
+          btn.innerHTML = sendIcon;
+          btn.classList.remove('error');
+        }, 1500);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+
+      var body = {
+        deviceId: document.getElementById('device').value,
+        text: text,
+        language: document.getElementById('language').value,
+        volume: parseInt(document.getElementById('volume').value, 10),
+      };
+
+      Homey.api('POST', '/speak', body)
+        .then(function () {
+          btn.innerHTML = checkIcon;
+          btn.classList.add('success');
+          setTimeout(function () {
+            btn.innerHTML = sendIcon;
+            btn.classList.remove('success');
+            btn.disabled = false;
+            btn.style.opacity = '';
+          }, 2000);
+        })
+        .catch(function (err) {
+          btn.innerHTML = errorIcon;
+          btn.classList.add('error');
+          setTimeout(function () {
+            btn.innerHTML = sendIcon;
+            btn.classList.remove('error');
+            btn.disabled = false;
+            btn.style.opacity = '';
+          }, 2000);
+        });
+    }
+  </script>
+</body>
+</html>

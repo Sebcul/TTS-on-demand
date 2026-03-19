@@ -1,0 +1,13 @@
+{
+  "name": "com.tts-on-demand",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "build": "homey app build",
+    "validate": "homey app validate"
+  },
+  "dependencies": {
+    "castv2-client": "^1.2.0",
+    "google-tts-api": "^2.0.2"
+  }
+}
